@@ -77,27 +77,8 @@ def main():
                     return_tensors = "pt",
                 ).to("cuda")
 
-                # Get the length of the input sequence
-                input_length = inputs.input_ids.size(1)
-            
-                # Set the end-of-sequence token ID to stop generation
-                eos_token_id = tokenizer.eos_token_id
 
-                # Generate output
-                outputs = model.generate(
-                    **inputs,
-                    max_new_tokens=10,          # Small value sufficient for short answers
-                    do_sample=False,            # Greedy decoding for determinism
-                    repetition_penalty=1.1,     # Prevent token repetition
-                    eos_token_id=eos_token_id   # Stop at end-of-sequence token
-                )
-                # Decode only the generated tokens
-                generated_ids = outputs[0, input_length:]
-                caption = tokenizer.decode(generated_ids, skip_special_tokens=True)
-                print(caption)
-                print("\n\n")
-
-                #outputs = model.generate(**inputs, max_new_tokens = 10, do_sample=False, repetition_penalty=1.1)
+                outputs = model.generate(**inputs, max_new_tokens = 10, do_sample=False, repetition_penalty=1.1)
                 #outputs = model.generate(**inputs, max_new_tokens = 10, do_sample=False)
                 #outputs = model.generate(**inputs, max_new_tokens = 10, temperature = 0.0000001, do_sample=False)
                 #outputs = model.generate(**inputs, max_new_tokens = 128, use_cache = True, temperature = 0.0000001, repetition_penalty=1.2)
@@ -120,9 +101,9 @@ def main():
 #print(caption)  # Expected: e.g., "黑色"
 
 
-                #print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+                print(tokenizer.decode(outputs[0], skip_special_tokens=True))
                 #print(tokenizer.batch_decode(outputs))
-                #print("\n\n")
+                print("\n\n")
 
 
         except Exception as e:

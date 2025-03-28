@@ -8,10 +8,10 @@ from trl import SFTTrainer, SFTConfig
 
 model, tokenizer = FastVisionModel.from_pretrained(
     #"./Qwen2-VL-7B-Instruct",
-    "./Qwen2.5-VL-7B-Instruct",
+    #"./Qwen2.5-VL-7B-Instruct",
     #"./Mistral-Small-3.1-24B-Instruct-2503",
     #"./gemma-3-27b-it",
-    #"./Qwen2.5-VL-32B-Instruct",
+    "./Qwen2.5-VL-32B-Instruct",
     load_in_4bit = True, # Use 4bit to reduce memory use. False for 16bit LoRA.
     use_gradient_checkpointing = "unsloth", # True or "unsloth" for long context
 )
@@ -113,7 +113,7 @@ trainer = SFTTrainer(
         gradient_accumulation_steps = 4,
         warmup_steps = 5,
         #max_steps = 1000,
-        num_train_epochs = 3, # Set this instead of max_steps for full training runs
+        num_train_epochs = 2, # Set this instead of max_steps for full training runs
         learning_rate = 2e-4,
         fp16 = not is_bf16_supported(),
         bf16 = is_bf16_supported(),
@@ -122,7 +122,7 @@ trainer = SFTTrainer(
         weight_decay = 0.01,
         lr_scheduler_type = "linear",
         seed = 3407,
-        output_dir = "outputs_ped",
+        output_dir = "outputs_ped32",
         save_strategy = "steps",
         save_steps = 1000,
         report_to = "none",     # For Weights and Biases
@@ -158,7 +158,7 @@ print(f"Peak reserved memory % of max memory = {used_percentage} %.")
 print(f"Peak reserved memory for training % of max memory = {lora_percentage} %.")
 
 
-model.save_pretrained("lora_model") # Local saving
-tokenizer.save_pretrained("lora_model")
+model.save_pretrained("lora_model32") # Local saving
+tokenizer.save_pretrained("lora_model32")
 # model.push_to_hub("your_name/lora_model", token = "...") # Online saving
 # tokenizer.push_to_hub("your_name/lora_model", token = "...") # Online saving
