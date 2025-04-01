@@ -62,14 +62,40 @@ def format_dataset(file_path, image_dir='.', processor=None):
     with open(file_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
+    instruction = '''
+请输出图中目标人物的属性，每个属性标签从对应的枚举数组中选择一个最可能的标签，属性列表及对应的枚举数组以及要求如下：
+
+年龄    ["不确定","少年","中青年","老年"]，如果不能确定输出"不确定"
+性别    ["不确定","男","女"]，如果不能确定输出"不确定"
+帽子    ["不确定","帽子","头盔","头巾"]，如果没有戴帽子，输出"不确定"
+口罩    ["是","否"]
+眼镜    ["是","否"]
+带包    ["不确定","单肩","双层","斜挎","拎包","拎东西","带包"]，如果没有带包，输出"不确定"
+拉东西    ["不确定","行李箱","婴儿车","轮椅","推拉物品"]，如果没有拉东西，输出"不确定"
+打伞    ["是","否"]
+抱东西    ["不确定","抱孩子","抱东西","扛背东西"]，如果没有抱东西，输出"不确定"
+上衣颜色    ["不确定","红色","橙色","黄色","绿色","蓝色","紫色","粉色","棕色","灰色","白色","黑色","花色"]，如果不能确定输出"不确定"
+下衣颜色    ["不确定","红色","橙色","黄色","绿色","蓝色","紫色","粉色","棕色","灰色","白色","黑色","花色"]，如果不能确定输出"不确定"
+发型    ["不确定","光头","平头","短发","齐耳短发","长发","扎辫子","谢顶"]，如果不能确定输出"不确定"
+帽子颜色    ["不确定","红色","橙色","黄色","绿色","蓝色","紫色","粉色","棕色","灰色","白色","黑色","花色"]，如果不能确定输出"不确定"
+拍摄方向    ["不确定","正面","背面","侧面"]，如果不能确定输出"不确定"
+鞋子颜色    ["不确定","红色","橙色","黄色","绿色","蓝色","紫色","粉色","棕色","灰色","白色","黑色","花色"]，如果不能确定输出"不确定"
+衣服纹理    ["不确定","格子","花纹","纯色","条纹","拼色","图案"]，如果不能确定输出"不确定"
+上衣款式    ["不确定","短袖","长袖","外套","无袖","雨衣"]，如果不能确定输出"不确定"
+下衣款式    ["不确定","长裤","短裤","七分裤","裙子"]，如果不能确定输出"不确定"
+
+输出json格式，例子如下：
+{"年龄": "不确定", "性别": "不确定", "帽子": "不确定", "口罩": "否", "眼镜": "否", "带包": "不确定", "拉东西": "不确定", "打伞": "否", "抱东西": "不确定", "上衣颜色": "不确定", "下衣颜色": "不确定", "发型": "不确定", "帽子颜色": "不确定", "拍摄方向": "不确定", "鞋子颜色": "不确定", "衣服纹理": "不确定", "上衣款式": "不确定", "下衣款式": "不确定"}
+'''
+
     formatted_data = []
     for line_num, line in enumerate(lines): # Added line number for better error reporting
         parts = line.strip().split('\t')
-        if len(parts) != 3:
+        if len(parts) != 2:
             print(f"Warning: Skipping line {line_num+1} due to incorrect format (expected 3 tab-separated parts): {line.strip()}")
             continue
 
-        image_file, instruction, answer = parts
+        image_file, answer = parts
         image_path = os.path.join(image_dir, image_file)
 
         # Simplified image loading/caching
@@ -117,13 +143,26 @@ def format_dataset(file_path, image_dir='.', processor=None):
              # continue
 
         formatted_data.append({"image": image, "text": formatted_text})
+        # After creating converted_dataset:
+        #if formatted_data:
+        #    print("\nSample item from converted_dataset:")
+        #    print(formatted_data[0])
+        #    print("-" * 20)
+        #else:
+        #    print("\nError: converted_dataset is empty after processing!")
+            # Exit or raise error if dataset is empty
+        #    import sys
+        #    sys.exit("Exiting due to empty dataset.")
+
+        # Ensure dataset has expected columns (image, text)
+        #print(f"Dataset features: {formatted_data.features}")
 
     print(f"Successfully processed {len(formatted_data)} examples out of {len(lines)} lines.")
     return formatted_data
 
 # --- Load and Format Dataset ---
 # Pass the processor to the formatting function
-raw_dataset = format_dataset('./ped_data/train.txt', './ped_data/ped_train', processor=processor)
+raw_dataset = format_dataset('./ped_data/train_fuse_20250328.txt', './ped_data/ped_train', processor=processor)
 
 # Ensure dataset is not empty
 if not raw_dataset:
